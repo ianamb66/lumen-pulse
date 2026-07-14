@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#070b10" />
+    <meta name="theme-color" content="#05070d" />
     <title>Lumen Pulse</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -12,7 +12,10 @@
       <section class="status-panel" aria-live="polite">
         <div>
           <p class="eyebrow">Lumen Pulse</p>
-          <h1>Estroboscopio meditativo con controles de seguridad</h1>
+          <h1>Sesiones de luz y sonido para estados meditativos</h1>
+          <p class="hero-copy">
+            Combina pulsos visuales, duraciones guiadas y una capa ambient generada en el navegador.
+          </p>
         </div>
         <div class="runtime-badge" id="supportBadge">Sin iniciar</div>
       </section>
@@ -39,7 +42,7 @@
           <div class="card-head">
             <div>
               <p class="eyebrow">Sesion</p>
-              <h2>Patron de luz</h2>
+              <h2>Ritmo luminoso</h2>
             </div>
             <button class="icon-button" id="panicButton" type="button" aria-label="Detener ahora" disabled>
               <span aria-hidden="true">■</span>
@@ -60,6 +63,10 @@
               <span id="timerReadout">00:00</span>
               <small>restante</small>
             </div>
+          </div>
+
+          <div class="session-intent" id="sessionIntent">
+            Pulso base con variacion musical suave.
           </div>
 
           <div class="action-row">
@@ -109,14 +116,48 @@
           <p class="hint">Menor duty cycle reduce tiempo encendido, calor y fatiga visual.</p>
         </article>
 
-        <article class="control-card">
+        <article class="control-card duration-card">
           <p class="eyebrow">Duracion</p>
+          <div class="duration-row" aria-label="Duraciones de sesion">
+            <button class="duration-button active" type="button" data-duration="60">1 min</button>
+            <button class="duration-button" type="button" data-duration="180">3 min</button>
+            <button class="duration-button" type="button" data-duration="300">5 min</button>
+            <button class="duration-button" type="button" data-duration="600">10 min</button>
+          </div>
           <label class="range-row" for="durationInput">
             <span>Segundos</span>
-            <input id="durationInput" type="range" min="15" max="180" step="15" value="60" />
+            <input id="durationInput" type="range" min="60" max="600" step="60" value="60" />
           </label>
           <div class="value-line"><span id="durationReadout">60</span>s maximo</div>
           <p class="hint">La app se detiene automaticamente al terminar la sesion.</p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Musica</p>
+          <div class="segmented" role="radiogroup" aria-label="Musica de sesion">
+            <button class="segment active" id="musicOnButton" type="button" role="radio" aria-checked="true">
+              Ambient
+            </button>
+            <button class="segment" id="musicOffButton" type="button" role="radio" aria-checked="false">
+              Silencio
+            </button>
+          </div>
+          <label class="range-row stacked-range" for="volumeInput">
+            <span>Volumen</span>
+            <input id="volumeInput" type="range" min="0" max="70" step="5" value="35" />
+          </label>
+          <div class="value-line"><span id="volumeReadout">35</span>% audio</div>
+          <p class="hint">Drone suave generado con Web Audio. Requiere tocar Iniciar para desbloquear audio.</p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Variacion musical</p>
+          <label class="range-row" for="modulationInput">
+            <span>Profundidad</span>
+            <input id="modulationInput" type="range" min="0" max="45" step="5" value="20" />
+          </label>
+          <div class="value-line">±<span id="modulationReadout">20</span>% sobre la frecuencia base</div>
+          <p class="hint">La frecuencia luminosa respira con frases lentas de la musica, sin saltos bruscos.</p>
         </article>
 
         <article class="control-card">
