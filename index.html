@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070b10" />
+    <title>Lumen Pulse</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="status-panel" aria-live="polite">
+        <div>
+          <p class="eyebrow">Lumen Pulse</p>
+          <h1>Estroboscopio meditativo con controles de seguridad</h1>
+        </div>
+        <div class="runtime-badge" id="supportBadge">Sin iniciar</div>
+      </section>
+
+      <section class="warning-panel" id="warningPanel">
+        <div class="warning-mark" aria-hidden="true">!</div>
+        <div>
+          <h2>Lee esto antes de usarlo</h2>
+          <p>
+            La luz estroboscopica puede provocar malestar, migrañas, nauseas o convulsiones en personas
+            fotosensibles. No uses esta app si tienes epilepsia, historial de convulsiones, sensibilidad a luces,
+            migraña fuerte, una condicion neurologica, o si estas con sustancias, manejando o cerca de otras personas
+            que no dieron consentimiento.
+          </p>
+          <label class="consent-row">
+            <input id="consentInput" type="checkbox" />
+            <span>Entiendo el riesgo y quiero activar los controles.</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="control-grid">
+        <article class="control-card primary-controls">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Sesion</p>
+              <h2>Patron de luz</h2>
+            </div>
+            <button class="icon-button" id="panicButton" type="button" aria-label="Detener ahora" disabled>
+              <span aria-hidden="true">■</span>
+            </button>
+          </div>
+
+          <div class="pulse-meter" id="pulseMeter" aria-hidden="true">
+            <div class="pulse-core"></div>
+            <div class="pulse-ring"></div>
+          </div>
+
+          <div class="readout">
+            <div>
+              <span id="frequencyReadout">8.0</span>
+              <small>Hz</small>
+            </div>
+            <div>
+              <span id="timerReadout">00:00</span>
+              <small>restante</small>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button id="startButton" class="start-button" type="button" disabled>Iniciar</button>
+            <button id="stopButton" class="secondary-button" type="button" disabled>Detener</button>
+          </div>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Modo</p>
+          <div class="segmented" role="radiogroup" aria-label="Modo de salida">
+            <button class="segment active" id="torchModeButton" type="button" role="radio" aria-checked="true">
+              Linterna
+            </button>
+            <button class="segment" id="screenModeButton" type="button" role="radio" aria-checked="false">
+              Pantalla
+            </button>
+          </div>
+          <p class="hint">
+            La linterna solo funciona en navegadores moviles compatibles, normalmente Chrome en Android y con permiso
+            de camara. iOS suele bloquear el control de torch.
+          </p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Frecuencia</p>
+          <label class="range-row" for="frequencyInput">
+            <span>Hz</span>
+            <input id="frequencyInput" type="range" min="0.5" max="20" step="0.1" value="8" />
+          </label>
+          <div class="preset-row" aria-label="Presets de frecuencia">
+            <button class="preset-button" type="button" data-frequency="2">2 Hz</button>
+            <button class="preset-button" type="button" data-frequency="4">4 Hz</button>
+            <button class="preset-button active" type="button" data-frequency="8">8 Hz</button>
+            <button class="preset-button" type="button" data-frequency="10">10 Hz</button>
+          </div>
+          <p class="risk-note" id="riskNote">Riesgo alto: 3-20 Hz puede afectar a personas fotosensibles.</p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Intensidad temporal</p>
+          <label class="range-row" for="dutyInput">
+            <span>Duty cycle</span>
+            <input id="dutyInput" type="range" min="10" max="70" step="5" value="35" />
+          </label>
+          <div class="value-line"><span id="dutyReadout">35</span>% encendido por ciclo</div>
+          <p class="hint">Menor duty cycle reduce tiempo encendido, calor y fatiga visual.</p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Duracion</p>
+          <label class="range-row" for="durationInput">
+            <span>Segundos</span>
+            <input id="durationInput" type="range" min="15" max="180" step="15" value="60" />
+          </label>
+          <div class="value-line"><span id="durationReadout">60</span>s maximo</div>
+          <p class="hint">La app se detiene automaticamente al terminar la sesion.</p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Estado</p>
+          <ul class="state-list" id="stateList">
+            <li>Esperando confirmacion de seguridad.</li>
+            <li>Linterna sin solicitar.</li>
+            <li>Temporizador inactivo.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <div class="flash-screen" id="flashScreen" aria-hidden="true"></div>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
