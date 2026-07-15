@@ -23,8 +23,101 @@ const els = {
   pulseMeter: document.querySelector("#pulseMeter"),
   flashScreen: document.querySelector("#flashScreen"),
   sessionIntent: document.querySelector("#sessionIntent"),
+  trackDescription: document.querySelector("#trackDescription"),
   stateList: document.querySelector("#stateList"),
   presetButtons: [...document.querySelectorAll(".preset-button")],
+  trackButtons: [...document.querySelectorAll(".track-button")],
+};
+
+const meditationTracks = {
+  calm: {
+    label: "Calma",
+    description: "Pista amplia para bajar revoluciones, con cambios lentos y luz respirando suave.",
+    base: 96,
+    oscTypes: ["sine", "sine", "triangle", "sine"],
+    filterStart: 860,
+    filterQ: 0.68,
+    chordGain: 0.15,
+    breathGain: 0.11,
+    breathHz: 0.055,
+    phraseSeconds: 24,
+    driftSeconds: 64,
+    driftMix: 0.55,
+    changeEvery: 22000,
+    progressions: [
+      [1, 1.333, 1.778, 2.371],
+      [1, 1.25, 1.667, 2.225],
+      [0.89, 1.333, 1.778, 2],
+      [1, 1.5, 2, 2.667],
+    ],
+    filterSteps: [720, 780, 640, 900],
+  },
+  focus: {
+    label: "Enfoque",
+    description: "Pista mas limpia y estable para concentracion, con pulso musical discreto.",
+    base: 132,
+    oscTypes: ["sine", "triangle", "sine", "triangle"],
+    filterStart: 1250,
+    filterQ: 1.05,
+    chordGain: 0.12,
+    breathGain: 0.07,
+    breathHz: 0.083,
+    phraseSeconds: 12,
+    driftSeconds: 36,
+    driftMix: 0.78,
+    changeEvery: 12000,
+    progressions: [
+      [1, 1.5, 2, 3],
+      [1, 1.414, 2, 2.828],
+      [0.944, 1.5, 1.889, 2.833],
+      [1, 1.25, 2, 2.5],
+    ],
+    filterSteps: [1120, 1380, 1240, 1520],
+  },
+  breath: {
+    label: "Respirar",
+    description: "Oleaje profundo para sesiones corporales, con respiracion lenta al frente.",
+    base: 72,
+    oscTypes: ["sine", "sine", "sine", "triangle"],
+    filterStart: 640,
+    filterQ: 0.55,
+    chordGain: 0.13,
+    breathGain: 0.18,
+    breathHz: 0.04,
+    phraseSeconds: 32,
+    driftSeconds: 80,
+    driftMix: 0.42,
+    changeEvery: 28000,
+    progressions: [
+      [1, 1.25, 1.5, 2],
+      [0.84, 1.25, 1.5, 2.25],
+      [0.75, 1.125, 1.5, 1.875],
+      [1, 1.333, 1.5, 2],
+    ],
+    filterSteps: [560, 620, 520, 700],
+  },
+  trance: {
+    label: "Trance suave",
+    description: "Armonicos flotantes y cambios mas hipnoticos, sin volverse agresiva.",
+    base: 108,
+    oscTypes: ["sine", "triangle", "triangle", "sawtooth"],
+    filterStart: 980,
+    filterQ: 1.2,
+    chordGain: 0.1,
+    breathGain: 0.09,
+    breathHz: 0.067,
+    phraseSeconds: 18,
+    driftSeconds: 52,
+    driftMix: 0.68,
+    changeEvery: 16000,
+    progressions: [
+      [1, 1.2, 1.5, 2.4],
+      [0.92, 1.333, 1.6, 2.4],
+      [1, 1.25, 1.875, 2.812],
+      [0.8, 1.2, 1.6, 2.4],
+    ],
+    filterSteps: [840, 1180, 980, 1320],
+  },
 };
 
 const state = {
@@ -43,6 +136,7 @@ const state = {
   audioContext: null,
   audioNodes: null,
   chordIndex: 0,
+  meditationTrack: "calm",
 };
 
 function formatClock(totalSeconds) {
@@ -67,14 +161,23 @@ function getElapsedSeconds() {
   return Math.max(0, (performance.now() - state.sessionStartedAt) / 1000);
 }
 
+function getCurrentTrack() {
+  return meditationTracks[state.meditationTrack] ?? meditationTracks.calm;
+}
+
+function getTrackDrift(elapsed) {
+  const track = getCurrentTrack();
+  const phrase = Math.sin((elapsed / track.phraseSeconds) * Math.PI * 2);
+  const slowBreath = Math.sin((elapsed / track.driftSeconds) * Math.PI * 2 + Math.PI / 4);
+  return phrase * track.driftMix + slowBreath * (1 - track.driftMix);
+}
+
 function getEffectiveFrequency() {
   const { frequency, modulation } = getSettings();
   if (!state.running || !state.musicEnabled || modulation <= 0) return frequency;
 
   const elapsed = getElapsedSeconds();
-  const phrase = Math.sin((elapsed / 16) * Math.PI * 2);
-  const slowBreath = Math.sin((elapsed / 43) * Math.PI * 2 + Math.PI / 4);
-  const drift = phrase * 0.72 + slowBreath * 0.28;
+  const drift = getTrackDrift(elapsed);
   const modulated = frequency * (1 + drift * modulation);
   return Math.min(20, Math.max(0.5, modulated));
 }
@@ -106,9 +209,16 @@ function updateReadouts() {
   const modeLabel = state.mode === "torch" ? "Linterna" : "Pantalla";
   const supportLabel = state.torchSupported ? "torch compatible" : "torch no confirmado";
   const musicLabel = state.musicEnabled ? "ambient activo" : "silencio";
+  const currentTrack = getCurrentTrack();
   els.sessionIntent.textContent = state.musicEnabled
-    ? `Frecuencia base ${frequency.toFixed(1)} Hz con variacion musical de ±${Math.round(modulation * 100)}%.`
+    ? `${currentTrack.label}: ${frequency.toFixed(1)} Hz base con variacion de ±${Math.round(modulation * 100)}%.`
     : `Frecuencia fija de ${frequency.toFixed(1)} Hz sin musica.`;
+  els.trackDescription.textContent = currentTrack.description;
+  els.trackButtons.forEach((button) => {
+    const isActive = button.dataset.track === state.meditationTrack;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-checked", String(isActive));
+  });
 
   if (!state.running) {
     els.supportBadge.textContent = `${modeLabel} · listo`;
@@ -145,6 +255,12 @@ function setMusicEnabled(enabled) {
   els.musicOffButton.classList.toggle("active", !enabled);
   els.musicOnButton.setAttribute("aria-checked", String(enabled));
   els.musicOffButton.setAttribute("aria-checked", String(!enabled));
+  updateReadouts();
+}
+
+function setMeditationTrack(track) {
+  if (state.running || !meditationTracks[track]) return;
+  state.meditationTrack = track;
   updateReadouts();
 }
 
@@ -202,6 +318,7 @@ async function startMusic() {
   }
 
   const { volume } = getSettings();
+  const track = getCurrentTrack();
   const context = new AudioContext();
   await context.resume();
 
@@ -213,12 +330,12 @@ async function startMusic() {
   const breathOsc = context.createOscillator();
 
   filter.type = "lowpass";
-  filter.frequency.value = 1100;
-  filter.Q.value = 0.8;
+  filter.frequency.value = track.filterStart;
+  filter.Q.value = track.filterQ;
   master.gain.value = Math.max(0.0001, volume * 0.42);
-  chordGain.gain.value = 0.16;
-  breathGain.gain.value = Math.max(0.0001, volume * 0.12);
-  breathOsc.frequency.value = 0.0625;
+  chordGain.gain.value = track.chordGain;
+  breathGain.gain.value = Math.max(0.0001, volume * track.breathGain);
+  breathOsc.frequency.value = track.breathHz;
 
   breathOsc.connect(breathGain);
   breathGain.connect(master.gain);
@@ -226,12 +343,12 @@ async function startMusic() {
   compressor.connect(master);
   master.connect(context.destination);
 
-  const base = 110;
-  const ratios = [1, 1.5, 2, 2.5];
+  const base = track.base;
+  const ratios = track.progressions[0];
   const oscillators = ratios.map((ratio, index) => {
     const osc = context.createOscillator();
     const gain = context.createGain();
-    osc.type = index === 0 ? "sine" : "triangle";
+    osc.type = track.oscTypes[index] ?? "sine";
     osc.frequency.value = base * ratio;
     gain.gain.value = 0.09 / (index + 1);
     osc.connect(gain);
@@ -249,18 +366,12 @@ async function startMusic() {
   state.musicTimerId = window.setInterval(() => {
     if (!state.audioContext || !state.audioNodes) return;
     const now = state.audioContext.currentTime;
-    const progressions = [
-      [1, 1.5, 2, 2.5],
-      [1, 1.333, 2, 2.666],
-      [0.89, 1.333, 1.778, 2.371],
-      [1, 1.25, 1.875, 2.5],
-    ];
-    state.chordIndex = (state.chordIndex + 1) % progressions.length;
-    progressions[state.chordIndex].forEach((ratio, index) => {
+    state.chordIndex = (state.chordIndex + 1) % track.progressions.length;
+    track.progressions[state.chordIndex].forEach((ratio, index) => {
       state.audioNodes.oscillators[index].frequency.setTargetAtTime(base * ratio, now, 2.4);
     });
-    state.audioNodes.filter.frequency.setTargetAtTime(760 + state.chordIndex * 120, now, 3.2);
-  }, 16000);
+    state.audioNodes.filter.frequency.setTargetAtTime(track.filterSteps[state.chordIndex], now, 3.2);
+  }, track.changeEvery);
 }
 
 function updateMusicVolume() {
@@ -350,7 +461,7 @@ async function startSession() {
     setStateList([
       `Frecuencia activa: ${frequency.toFixed(1)} Hz.`,
       `Duracion maxima: ${duration}s.`,
-      state.musicEnabled ? "Musica ambient modulando la frecuencia." : "Sesion sin musica.",
+      state.musicEnabled ? `Pista activa: ${getCurrentTrack().label}.` : "Sesion sin musica.",
       "Usa Detener o el boton cuadrado si aparece cualquier molestia.",
     ]);
     schedulePulse(true);
@@ -425,6 +536,9 @@ els.torchModeButton.addEventListener("click", () => setMode("torch"));
 els.screenModeButton.addEventListener("click", () => setMode("screen"));
 els.musicOnButton.addEventListener("click", () => setMusicEnabled(true));
 els.musicOffButton.addEventListener("click", () => setMusicEnabled(false));
+els.trackButtons.forEach((button) => {
+  button.addEventListener("click", () => setMeditationTrack(button.dataset.track));
+});
 
 els.frequencyInput.addEventListener("input", updateReadouts);
 els.dutyInput.addEventListener("input", updateReadouts);

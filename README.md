@@ -1,6 +1,6 @@
 # Lumen Pulse
 
-Prototipo web para sesiones de luz pulsada con linterna del telefono o fallback visual en pantalla, con musica ambient generada en el navegador y variacion suave de frecuencia sincronizada a frases musicales.
+Prototipo web para sesiones de luz pulsada con linterna del telefono o fallback visual en pantalla, con pistas ambient generadas en el navegador y variacion suave de frecuencia sincronizada a frases musicales.
 
 ## Seguridad
 
@@ -45,17 +45,25 @@ Para probar en telefono, servir con HTTPS o usar un tunel local confiable.
 - `index.html`: estructura de la app.
 - `styles.css`: interfaz responsive 16:9/mobile-first.
 - `app.js`: deteccion de soporte, linterna, temporizador y fallback.
-- Web Audio: sintetiza un drone ambient simple al iniciar la sesion.
+- Web Audio: sintetiza pistas ambient por intencion al iniciar la sesion.
 
 ## Controles
 
 - Frecuencia: 0.5 a 20 Hz.
 - Duty cycle: 10% a 70%.
 - Duracion: 1, 3, 5 o 10 minutos.
-- Musica: ambient o silencio.
+- Tipo de meditacion: calma, enfoque, respirar o trance suave.
+- Musica: pista generativa o silencio.
 - Variacion musical: 0% a 45% alrededor de la frecuencia base.
 - Parada inmediata y parada automatica al ocultar la pagina.
 
 ## Funcionamiento musical
 
-Al tocar **Iniciar**, la app crea un `AudioContext` y genera una cama de osciladores suaves con cambios de acorde cada 16 segundos. Si la musica esta activa, la frecuencia luminosa modula alrededor de la frecuencia base usando la misma frase lenta, por ejemplo 8 Hz con variacion de ±20%.
+Al tocar **Iniciar**, la app crea un `AudioContext` y genera una pista sintetica segun la intencion elegida:
+
+- **Calma:** drone amplio con cambios lentos.
+- **Enfoque:** tono mas limpio y estable.
+- **Respirar:** oleaje grave con respiracion mas marcada.
+- **Trance suave:** armonicos flotantes con movimiento hipnotico.
+
+Si la musica esta activa, la frecuencia luminosa modula alrededor de la frecuencia base usando la frase lenta de la pista elegida, por ejemplo 8 Hz con variacion de ±20%.

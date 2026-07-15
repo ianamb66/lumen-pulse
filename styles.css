@@ -185,7 +185,7 @@ h2 {
 
 .primary-controls {
   display: grid;
-  grid-row: span 5;
+  grid-row: span 6;
   align-content: space-between;
   min-height: 700px;
   overflow: hidden;
@@ -414,6 +414,49 @@ input[type="range"] {
   font-weight: 800;
 }
 
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.track-button {
+  display: grid;
+  gap: 4px;
+  min-height: 78px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    linear-gradient(160deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.025)),
+    rgb(255 255 255 / 0.03);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.track-button span {
+  font-weight: 900;
+}
+
+.track-button small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.track-button.active {
+  border-color: rgb(184 167 255 / 0.72);
+  background:
+    radial-gradient(circle at 18% 16%, rgb(142 232 255 / 0.16), transparent 5.5rem),
+    linear-gradient(160deg, rgb(184 167 255 / 0.17), rgb(142 232 255 / 0.06));
+}
+
+.track-button:active {
+  transform: translateY(1px) scale(0.99);
+}
+
 .stacked-range {
   margin-top: 18px;
 }
@@ -478,6 +521,10 @@ body.session-running .app-shell {
 
   .duration-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .track-grid {
+    grid-template-columns: 1fr;
   }
 }
 
