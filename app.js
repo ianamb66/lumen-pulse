@@ -33,90 +33,42 @@ const meditationTracks = {
   calm: {
     label: "Calma",
     description: "Pista amplia para bajar revoluciones, con cambios lentos y luz respirando suave.",
-    base: 96,
-    oscTypes: ["sine", "sine", "triangle", "sine"],
-    filterStart: 860,
-    filterQ: 0.68,
-    chordGain: 0.15,
-    breathGain: 0.11,
-    breathHz: 0.055,
+    sourceTitle: "Wonder",
+    sourceDuration: "10:00",
+    audioSrc: "./public/audio/calm-wonder.mp3",
     phraseSeconds: 24,
     driftSeconds: 64,
     driftMix: 0.55,
-    changeEvery: 22000,
-    progressions: [
-      [1, 1.333, 1.778, 2.371],
-      [1, 1.25, 1.667, 2.225],
-      [0.89, 1.333, 1.778, 2],
-      [1, 1.5, 2, 2.667],
-    ],
-    filterSteps: [720, 780, 640, 900],
   },
   focus: {
     label: "Enfoque",
     description: "Pista mas limpia y estable para concentracion, con pulso musical discreto.",
-    base: 132,
-    oscTypes: ["sine", "triangle", "sine", "triangle"],
-    filterStart: 1250,
-    filterQ: 1.05,
-    chordGain: 0.12,
-    breathGain: 0.07,
-    breathHz: 0.083,
+    sourceTitle: "Bright Ambient",
+    sourceDuration: "8:57",
+    audioSrc: "./public/audio/focus-bright-ambient.mp3",
     phraseSeconds: 12,
     driftSeconds: 36,
     driftMix: 0.78,
-    changeEvery: 12000,
-    progressions: [
-      [1, 1.5, 2, 3],
-      [1, 1.414, 2, 2.828],
-      [0.944, 1.5, 1.889, 2.833],
-      [1, 1.25, 2, 2.5],
-    ],
-    filterSteps: [1120, 1380, 1240, 1520],
   },
   breath: {
     label: "Respirar",
     description: "Oleaje profundo para sesiones corporales, con respiracion lenta al frente.",
-    base: 72,
-    oscTypes: ["sine", "sine", "sine", "triangle"],
-    filterStart: 640,
-    filterQ: 0.55,
-    chordGain: 0.13,
-    breathGain: 0.18,
-    breathHz: 0.04,
+    sourceTitle: "Nature Ambience",
+    sourceDuration: "9:41",
+    audioSrc: "./public/audio/breath-nature-ambience.mp3",
     phraseSeconds: 32,
     driftSeconds: 80,
     driftMix: 0.42,
-    changeEvery: 28000,
-    progressions: [
-      [1, 1.25, 1.5, 2],
-      [0.84, 1.25, 1.5, 2.25],
-      [0.75, 1.125, 1.5, 1.875],
-      [1, 1.333, 1.5, 2],
-    ],
-    filterSteps: [560, 620, 520, 700],
   },
   trance: {
     label: "Trance suave",
     description: "Armonicos flotantes y cambios mas hipnoticos, sin volverse agresiva.",
-    base: 108,
-    oscTypes: ["sine", "triangle", "triangle", "sawtooth"],
-    filterStart: 980,
-    filterQ: 1.2,
-    chordGain: 0.1,
-    breathGain: 0.09,
-    breathHz: 0.067,
+    sourceTitle: "Frozen in Time",
+    sourceDuration: "9:32",
+    audioSrc: "./public/audio/trance-frozen-in-time.mp3",
     phraseSeconds: 18,
     driftSeconds: 52,
     driftMix: 0.68,
-    changeEvery: 16000,
-    progressions: [
-      [1, 1.2, 1.5, 2.4],
-      [0.92, 1.333, 1.6, 2.4],
-      [1, 1.25, 1.875, 2.812],
-      [0.8, 1.2, 1.6, 2.4],
-    ],
-    filterSteps: [840, 1180, 980, 1320],
   },
 };
 
@@ -128,14 +80,11 @@ const state = {
   track: null,
   timeoutId: null,
   timerId: null,
-  musicTimerId: null,
   sessionEndsAt: 0,
   sessionStartedAt: 0,
   isLightOn: false,
   musicEnabled: true,
-  audioContext: null,
-  audioNodes: null,
-  chordIndex: 0,
+  audioElement: null,
   meditationTrack: "calm",
 };
 
@@ -213,7 +162,7 @@ function updateReadouts() {
   els.sessionIntent.textContent = state.musicEnabled
     ? `${currentTrack.label}: ${frequency.toFixed(1)} Hz base con variacion de ±${Math.round(modulation * 100)}%.`
     : `Frecuencia fija de ${frequency.toFixed(1)} Hz sin musica.`;
-  els.trackDescription.textContent = currentTrack.description;
+  els.trackDescription.textContent = `${currentTrack.description} MP3: ${currentTrack.sourceTitle}, ${currentTrack.sourceDuration}.`;
   els.trackButtons.forEach((button) => {
     const isActive = button.dataset.track === state.meditationTrack;
     button.classList.toggle("active", isActive);
@@ -310,94 +259,35 @@ async function setTorch(enabled) {
 
 async function startMusic() {
   if (!state.musicEnabled) return;
-
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) {
-    setStateList(["Este navegador no soporta Web Audio.", "La sesion continuara sin musica.", "Puedes detener cuando quieras."]);
-    return;
-  }
-
   const { volume } = getSettings();
   const track = getCurrentTrack();
-  const context = new AudioContext();
-  await context.resume();
+  const audio = new Audio(track.audioSrc);
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = Math.min(0.7, Math.max(0, volume));
+  state.audioElement = audio;
 
-  const master = context.createGain();
-  const filter = context.createBiquadFilter();
-  const compressor = context.createDynamicsCompressor();
-  const chordGain = context.createGain();
-  const breathGain = context.createGain();
-  const breathOsc = context.createOscillator();
-
-  filter.type = "lowpass";
-  filter.frequency.value = track.filterStart;
-  filter.Q.value = track.filterQ;
-  master.gain.value = Math.max(0.0001, volume * 0.42);
-  chordGain.gain.value = track.chordGain;
-  breathGain.gain.value = Math.max(0.0001, volume * track.breathGain);
-  breathOsc.frequency.value = track.breathHz;
-
-  breathOsc.connect(breathGain);
-  breathGain.connect(master.gain);
-  filter.connect(compressor);
-  compressor.connect(master);
-  master.connect(context.destination);
-
-  const base = track.base;
-  const ratios = track.progressions[0];
-  const oscillators = ratios.map((ratio, index) => {
-    const osc = context.createOscillator();
-    const gain = context.createGain();
-    osc.type = track.oscTypes[index] ?? "sine";
-    osc.frequency.value = base * ratio;
-    gain.gain.value = 0.09 / (index + 1);
-    osc.connect(gain);
-    gain.connect(chordGain);
-    osc.start();
-    return osc;
-  });
-
-  chordGain.connect(filter);
-  breathOsc.start();
-  state.audioContext = context;
-  state.audioNodes = { master, filter, chordGain, breathOsc, oscillators };
-  state.chordIndex = 0;
-
-  state.musicTimerId = window.setInterval(() => {
-    if (!state.audioContext || !state.audioNodes) return;
-    const now = state.audioContext.currentTime;
-    state.chordIndex = (state.chordIndex + 1) % track.progressions.length;
-    track.progressions[state.chordIndex].forEach((ratio, index) => {
-      state.audioNodes.oscillators[index].frequency.setTargetAtTime(base * ratio, now, 2.4);
-    });
-    state.audioNodes.filter.frequency.setTargetAtTime(track.filterSteps[state.chordIndex], now, 3.2);
-  }, track.changeEvery);
+  try {
+    await audio.play();
+  } catch (error) {
+    console.warn("Audio playback failed:", error);
+    state.audioElement = null;
+    setStateList(["El navegador bloqueo el audio.", "La sesion continuara con luz solamente.", "Puedes detener cuando quieras."]);
+  }
 }
 
 function updateMusicVolume() {
-  if (!state.audioContext || !state.audioNodes) return;
+  if (!state.audioElement) return;
   const { volume } = getSettings();
-  const now = state.audioContext.currentTime;
-  state.audioNodes.master.gain.setTargetAtTime(Math.max(0.0001, volume * 0.42), now, 0.25);
+  state.audioElement.volume = Math.min(0.7, Math.max(0, volume));
 }
 
 async function stopMusic() {
-  window.clearInterval(state.musicTimerId);
-  state.musicTimerId = null;
-
-  if (!state.audioContext || !state.audioNodes) return;
-
-  const { audioContext, audioNodes } = state;
-  const now = audioContext.currentTime;
-  audioNodes.master.gain.cancelScheduledValues(now);
-  audioNodes.master.gain.setTargetAtTime(0.0001, now, 0.08);
-
-  await new Promise((resolve) => window.setTimeout(resolve, 180));
-  audioNodes.oscillators.forEach((osc) => osc.stop());
-  audioNodes.breathOsc.stop();
-  await audioContext.close();
-  state.audioContext = null;
-  state.audioNodes = null;
+  if (!state.audioElement) return;
+  state.audioElement.pause();
+  state.audioElement.removeAttribute("src");
+  state.audioElement.load();
+  state.audioElement = null;
 }
 
 function schedulePulse(phaseOn = true) {

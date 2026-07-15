@@ -1,6 +1,6 @@
 # Lumen Pulse
 
-Prototipo web para sesiones de luz pulsada con linterna del telefono o fallback visual en pantalla, con pistas ambient generadas en el navegador y variacion suave de frecuencia sincronizada a frases musicales.
+Prototipo web para sesiones de luz pulsada con linterna del telefono o fallback visual en pantalla, con pistas ambient MP3 libres de DRM y variacion suave de frecuencia sincronizada a frases musicales.
 
 ## Seguridad
 
@@ -45,7 +45,7 @@ Para probar en telefono, servir con HTTPS o usar un tunel local confiable.
 - `index.html`: estructura de la app.
 - `styles.css`: interfaz responsive 16:9/mobile-first.
 - `app.js`: deteccion de soporte, linterna, temporizador y fallback.
-- Web Audio: sintetiza pistas ambient por intencion al iniciar la sesion.
+- `public/audio/`: pistas MP3 descargadas para las meditaciones.
 
 ## Controles
 
@@ -59,11 +59,17 @@ Para probar en telefono, servir con HTTPS o usar un tunel local confiable.
 
 ## Funcionamiento musical
 
-Al tocar **Iniciar**, la app crea un `AudioContext` y genera una pista sintetica segun la intencion elegida:
+Al tocar **Iniciar**, la app reproduce una pista MP3 segun la intencion elegida:
 
-- **Calma:** drone amplio con cambios lentos.
-- **Enfoque:** tono mas limpio y estable.
-- **Respirar:** oleaje grave con respiracion mas marcada.
-- **Trance suave:** armonicos flotantes con movimiento hipnotico.
+- **Calma:** `Wonder`, 10:00.
+- **Enfoque:** `Bright Ambient`, 8:57.
+- **Respirar:** `Nature Ambience`, 9:41.
+- **Trance suave:** `Frozen in Time`, 9:32.
 
 Si la musica esta activa, la frecuencia luminosa modula alrededor de la frecuencia base usando la frase lenta de la pista elegida, por ejemplo 8 Hz con variacion de ±20%.
+
+Las pistas hacen loop si la sesion llega a 10 minutos y el archivo dura unos segundos menos.
+
+## Audio y licencia
+
+Las pistas fueron descargadas de [Free No Copyright Relaxing Music](https://www.no-copyright-music.com/relaxing/) por Liborio Conti. La pagina indica que la musica es gratuita para uso personal y comercial, sin atribucion obligatoria, y que no debe activar reclamaciones de copyright. Ver tambien la [licencia](https://www.no-copyright-music.com/license/).
