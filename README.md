@@ -45,7 +45,7 @@ Para probar en telefono, servir con HTTPS o usar un tunel local confiable.
 - `index.html`: estructura de la app.
 - `styles.css`: interfaz responsive 16:9/mobile-first.
 - `app.js`: deteccion de soporte, linterna, temporizador y fallback.
-- `public/audio/`: pistas MP3 descargadas para las meditaciones.
+- `assets/audio/`: pistas MP3 descargadas para las meditaciones.
 
 ## Controles
 
