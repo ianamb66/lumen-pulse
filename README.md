@@ -1,6 +1,6 @@
 # Lumen Pulse
 
-Prototipo web para sesiones de luz pulsada con linterna del telefono o fallback visual en pantalla, con pistas ambient MP3 libres de DRM y variacion suave de frecuencia sincronizada a frases musicales.
+Prototipo web para sesiones de luz pulsada con linterna del telefono o fallback visual en pantalla, con pistas ambient MP3 libres de DRM, patrones de flicker y variacion suave de frecuencia sincronizada a frases musicales.
 
 ## Seguridad
 
@@ -8,7 +8,9 @@ La luz estroboscopica puede causar malestar, migraña, nauseas o convulsiones en
 
 La app no es dispositivo medico y no promete efectos terapeuticos.
 
-La app usa un perfil conservador: frecuencia maxima de 2.9 Hz. Fuentes de epilepsia fotosensible describen el rango de mayor riesgo entre 3-30 Hz o 5-30 Hz, y WCAG recomienda que el contenido no tenga flashes fuertes por encima de 3 por segundo.
+La app usa un perfil exploratorio con consentimiento reforzado: 3-18 Hz. Ese rango incluye frecuencias estudiadas para flicker con ojos cerrados (3, 8, 10 y 18 Hz), pero tambien entra en rangos que fuentes de epilepsia fotosensible consideran de riesgo (3-30 Hz o 5-30 Hz). WCAG recomienda que contenido general no tenga flashes fuertes por encima de 3 por segundo salvo umbrales estrictos; por eso la app no debe tratarse como segura para uso publico o sin consentimiento.
+
+Lumenate no publica sus frecuencias exactas en sus paginas publicas. Su material publico describe "precise flickering light sequences" y neural entrainment; la implementacion aqui toma como referencia la literatura que Lumenate cita o que estudia fenomenologia de flicker, no una copia de presets propietarios.
 
 ## Compatibilidad
 
@@ -51,11 +53,13 @@ Para probar en telefono, servir con HTTPS o usar un tunel local confiable.
 
 ## Controles
 
-- Frecuencia: 0.5 a 2.9 Hz.
-- Duty cycle: 10% a 70%.
+- Frecuencia: 3 a 18 Hz.
+- Presets: 6, 8, 10, 14 y 18 Hz.
+- Patron luminoso: ritmico, oleaje o arritmico.
+- Duty cycle: 8% a 50%.
 - Duracion: 1, 3, 5 o 10 minutos.
 - Tipo de meditacion: calma, enfoque, respirar o trance suave.
-- Musica: pista generativa o silencio.
+- Musica: pista MP3 ambient o silencio.
 - Variacion musical: 0% a 45% alrededor de la frecuencia base.
 - Parada inmediata y parada automatica al ocultar la pagina.
 
@@ -68,7 +72,9 @@ Al tocar **Iniciar**, la app reproduce una pista MP3 segun la intencion elegida:
 - **Respirar:** `Nature Ambience`, 9:41.
 - **Trance suave:** `Frozen in Time`, 9:32.
 
-Si la musica esta activa, la frecuencia luminosa modula alrededor de la frecuencia base usando la frase lenta de la pista elegida, por ejemplo 8 Hz con variacion de ±20%.
+Si la musica esta activa, la frecuencia luminosa modula alrededor de la frecuencia base usando la frase lenta de la pista elegida, por ejemplo 10 Hz con variacion de ±20%.
+
+El patron ritmico conserva ciclos regulares para favorecer entrainment. El patron oleaje introduce microvariacion lenta. El patron arritmico conserva una frecuencia promedio similar, pero rompe la regularidad para bajar intensidad subjetiva.
 
 Las pistas hacen loop si la sesion llega a 10 minutos y el archivo dura unos segundos menos.
 
@@ -81,3 +87,6 @@ Las pistas fueron descargadas de [Free No Copyright Relaxing Music](https://www.
 - Epilepsy Society: fotosensibilidad comunmente asociada con 3-30 Hz.
 - Epilepsy Foundation: flashes entre 5-30 Hz suelen ser los mas probables para provocar crisis en personas sensibles.
 - W3C WCAG 2.2 SC 2.3.1: evitar contenido que parpadee mas de tres veces por segundo salvo que este bajo umbrales estrictos.
+- Lumenate Science: https://lumenate.co/the-science/
+- Bartossek et al., PLoS ONE 2021: https://pubmed.ncbi.nlm.nih.gov/34197510/ estudio con 3 Hz y 10 Hz; los efectos fueron mas fuertes en 10 Hz.
+- Amaya et al., PLoS ONE 2023: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0284271 comparo 3, 8, 10 y 18 Hz; 10 Hz ritmico reporto mayor intensidad de patrones/dinamica, y la arritmia redujo efectos frente a ritmo equivalente.

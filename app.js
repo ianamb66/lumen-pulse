@@ -9,6 +9,8 @@ const els = {
   screenModeButton: document.querySelector("#screenModeButton"),
   frequencyInput: document.querySelector("#frequencyInput"),
   frequencyReadout: document.querySelector("#frequencyReadout"),
+  patternDescription: document.querySelector("#patternDescription"),
+  patternButtons: [...document.querySelectorAll(".pattern-button")],
   dutyInput: document.querySelector("#dutyInput"),
   dutyReadout: document.querySelector("#dutyReadout"),
   durationInput: document.querySelector("#durationInput"),
@@ -74,6 +76,23 @@ const meditationTracks = {
   },
 };
 
+const flickerPatterns = {
+  rhythmic: {
+    label: "Ritmico",
+    description:
+      "El patron ritmico mantiene la frecuencia con poca desviacion; los estudios lo asocian con efectos visuales mas fuertes.",
+  },
+  wave: {
+    label: "Oleaje",
+    description: "El oleaje agrega una respiracion lenta sobre el pulso para que la sesion se sienta menos mecanica.",
+  },
+  arrhythmic: {
+    label: "Arritmico",
+    description:
+      "El patron arritmico conserva la frecuencia promedio, pero rompe la regularidad y suele reducir la intensidad subjetiva.",
+  },
+};
+
 const state = {
   mode: "torch",
   running: false,
@@ -88,6 +107,8 @@ const state = {
   musicEnabled: true,
   audioElement: null,
   meditationTrack: "calm",
+  flickerPattern: "rhythmic",
+  pulseCount: 0,
 };
 
 function formatClock(totalSeconds) {
@@ -116,6 +137,10 @@ function getCurrentTrack() {
   return meditationTracks[state.meditationTrack] ?? meditationTracks.calm;
 }
 
+function getCurrentPattern() {
+  return flickerPatterns[state.flickerPattern] ?? flickerPatterns.rhythmic;
+}
+
 function getTrackDrift(elapsed) {
   const track = getCurrentTrack();
   const phrase = Math.sin((elapsed / track.phraseSeconds) * Math.PI * 2);
@@ -130,7 +155,23 @@ function getEffectiveFrequency() {
   const elapsed = getElapsedSeconds();
   const drift = getTrackDrift(elapsed);
   const modulated = frequency * (1 + drift * modulation);
-  return Math.min(2.9, Math.max(0.5, modulated));
+  return Math.min(18, Math.max(3, modulated));
+}
+
+function getPatternCycleFactor() {
+  const elapsed = getElapsedSeconds();
+
+  if (state.flickerPattern === "wave") {
+    return 1 + Math.sin(elapsed * Math.PI * 0.18) * 0.08;
+  }
+
+  if (state.flickerPattern === "arrhythmic") {
+    const pseudoRandom = Math.sin((state.pulseCount + 1) * 12.9898) * 43758.5453;
+    const fraction = pseudoRandom - Math.floor(pseudoRandom);
+    return 0.86 + fraction * 0.28;
+  }
+
+  return 1;
 }
 
 function setStateList(items) {
@@ -161,10 +202,17 @@ function updateReadouts() {
   const supportLabel = state.torchSupported ? "torch compatible" : "torch no confirmado";
   const musicLabel = state.musicEnabled ? "ambient activo" : "silencio";
   const currentTrack = getCurrentTrack();
+  const currentPattern = getCurrentPattern();
   els.sessionIntent.textContent = state.musicEnabled
-    ? `${currentTrack.label}: ${frequency.toFixed(1)} Hz base con variacion de ±${Math.round(modulation * 100)}%.`
-    : `Frecuencia fija de ${frequency.toFixed(1)} Hz sin musica.`;
+    ? `${currentTrack.label}: ${frequency.toFixed(1)} Hz base, patron ${currentPattern.label.toLowerCase()}, variacion de ±${Math.round(modulation * 100)}%.`
+    : `${frequency.toFixed(1)} Hz, patron ${currentPattern.label.toLowerCase()}, sin musica.`;
   els.trackDescription.textContent = `${currentTrack.description} MP3: ${currentTrack.sourceTitle}, ${currentTrack.sourceDuration}.`;
+  els.patternDescription.textContent = currentPattern.description;
+  els.patternButtons.forEach((button) => {
+    const isActive = button.dataset.pattern === state.flickerPattern;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-checked", String(isActive));
+  });
   els.trackButtons.forEach((button) => {
     const isActive = button.dataset.track === state.meditationTrack;
     button.classList.toggle("active", isActive);
@@ -213,6 +261,12 @@ function setMusicEnabled(enabled) {
 function setMeditationTrack(track) {
   if (state.running || !meditationTracks[track]) return;
   state.meditationTrack = track;
+  updateReadouts();
+}
+
+function setFlickerPattern(pattern) {
+  if (state.running || !flickerPatterns[pattern]) return;
+  state.flickerPattern = pattern;
   updateReadouts();
 }
 
@@ -298,7 +352,7 @@ function schedulePulse(phaseOn = true) {
 
   const { duty } = getSettings();
   const frequency = getEffectiveFrequency();
-  const cycleMs = 1000 / frequency;
+  const cycleMs = (1000 / frequency) * getPatternCycleFactor();
   const onMs = Math.max(10, cycleMs * duty);
   const offMs = Math.max(10, cycleMs - onMs);
   const nextDelay = phaseOn ? onMs : offMs;
@@ -307,6 +361,7 @@ function schedulePulse(phaseOn = true) {
     .catch((error) => stopSession(error.message))
     .finally(() => {
       if (!state.running) return;
+      if (!phaseOn) state.pulseCount += 1;
       state.timeoutId = window.setTimeout(() => schedulePulse(!phaseOn), nextDelay);
     });
 }
@@ -345,6 +400,7 @@ async function startSession() {
     }
 
     state.running = true;
+    state.pulseCount = 0;
     state.sessionStartedAt = performance.now();
     state.sessionEndsAt = performance.now() + duration * 1000;
     await startMusic();
@@ -353,6 +409,7 @@ async function startSession() {
     els.supportBadge.textContent = state.mode === "torch" ? "Linterna activa" : "Pantalla activa";
     setStateList([
       `Frecuencia activa: ${frequency.toFixed(1)} Hz.`,
+      `Patron: ${getCurrentPattern().label}.`,
       `Duracion maxima: ${duration}s.`,
       state.musicEnabled ? `Pista activa: ${getCurrentTrack().label}.` : "Sesion sin musica.",
       "Usa Detener o el boton cuadrado si aparece cualquier molestia.",
@@ -398,6 +455,7 @@ async function stopSession(message = "Sesion detenida.") {
   state.timeoutId = null;
   state.timerId = null;
   state.sessionStartedAt = 0;
+  state.pulseCount = 0;
 
   try {
     await setTorch(false);
@@ -434,6 +492,9 @@ els.torchModeButton.addEventListener("click", () => setMode("torch"));
 els.screenModeButton.addEventListener("click", () => setMode("screen"));
 els.musicOnButton.addEventListener("click", () => setMusicEnabled(true));
 els.musicOffButton.addEventListener("click", () => setMusicEnabled(false));
+els.patternButtons.forEach((button) => {
+  button.addEventListener("click", () => setFlickerPattern(button.dataset.pattern));
+});
 els.trackButtons.forEach((button) => {
   button.addEventListener("click", () => setMeditationTrack(button.dataset.track));
 });

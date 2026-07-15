@@ -15,7 +15,7 @@
           <p class="eyebrow">Lumen Pulse</p>
           <h1>Sesiones de luz y sonido para estados meditativos</h1>
           <p class="hero-copy">
-            Combina pulsos visuales, duraciones guiadas y pistas ambient libres de DRM.
+            Combina flicker visual, patrones rítmicos y pistas ambient para una experiencia exploratoria con riesgo informado.
           </p>
         </div>
         <div class="runtime-badge" id="supportBadge">Sin iniciar</div>
@@ -26,7 +26,8 @@
         <div>
           <h2>Lee esto antes de usarlo</h2>
           <p>
-            La luz estroboscopica puede provocar malestar, migrañas, nauseas o convulsiones en personas
+            Esta app usa frecuencias de flicker similares a las estudiadas para estados alterados con ojos cerrados. Eso tambien
+            entra en rangos asociados con fotosensibilidad: puede provocar malestar, migrañas, nauseas o convulsiones en personas
             fotosensibles. No uses esta app si tienes epilepsia, historial de convulsiones, sensibilidad a luces,
             migraña fuerte, una condicion neurologica, o si estas con sustancias, manejando o cerca de otras personas
             que no dieron consentimiento.
@@ -100,16 +101,38 @@
           <p class="eyebrow">Frecuencia</p>
           <label class="range-row" for="frequencyInput">
             <span>Hz</span>
-            <input id="frequencyInput" type="range" min="0.5" max="2.9" step="0.1" value="2" />
+            <input id="frequencyInput" type="range" min="3" max="18" step="0.1" value="10" />
           </label>
           <div class="preset-row" aria-label="Presets de frecuencia">
-            <button class="preset-button" type="button" data-frequency="0.8">0.8 Hz</button>
-            <button class="preset-button" type="button" data-frequency="1.2">1.2 Hz</button>
-            <button class="preset-button active" type="button" data-frequency="2">2 Hz</button>
-            <button class="preset-button" type="button" data-frequency="2.8">2.8 Hz</button>
+            <button class="preset-button" type="button" data-frequency="6">6 Hz</button>
+            <button class="preset-button" type="button" data-frequency="8">8 Hz</button>
+            <button class="preset-button active" type="button" data-frequency="10">10 Hz</button>
+            <button class="preset-button" type="button" data-frequency="14">14 Hz</button>
+            <button class="preset-button" type="button" data-frequency="18">18 Hz</button>
           </div>
           <p class="risk-note" id="riskNote">
-            Perfil conservador: el rango 3-30 Hz se evita porque puede afectar a personas fotosensibles.
+            Rango exploratorio: 8, 10 y 18 Hz se han usado en estudios de flicker. 10 Hz ritmico suele reportar mas intensidad visual.
+          </p>
+        </article>
+
+        <article class="control-card">
+          <p class="eyebrow">Patron luminoso</p>
+          <div class="pattern-grid" role="radiogroup" aria-label="Patron de flicker">
+            <button class="pattern-button active" type="button" role="radio" aria-checked="true" data-pattern="rhythmic">
+              <span>Ritmico</span>
+              <small>Pulso estable para entrainment</small>
+            </button>
+            <button class="pattern-button" type="button" role="radio" aria-checked="false" data-pattern="wave">
+              <span>Oleaje</span>
+              <small>Microvariacion lenta</small>
+            </button>
+            <button class="pattern-button" type="button" role="radio" aria-checked="false" data-pattern="arrhythmic">
+              <span>Arritmico</span>
+              <small>Menos intenso, mas organico</small>
+            </button>
+          </div>
+          <p class="hint" id="patternDescription">
+            El patron ritmico mantiene la frecuencia con poca desviacion; los estudios lo asocian con efectos visuales mas fuertes.
           </p>
         </article>
 
@@ -117,10 +140,10 @@
           <p class="eyebrow">Intensidad temporal</p>
           <label class="range-row" for="dutyInput">
             <span>Duty cycle</span>
-            <input id="dutyInput" type="range" min="10" max="70" step="5" value="35" />
+            <input id="dutyInput" type="range" min="8" max="50" step="2" value="22" />
           </label>
-          <div class="value-line"><span id="dutyReadout">35</span>% encendido por ciclo</div>
-          <p class="hint">Menor duty cycle reduce tiempo encendido, calor y fatiga visual.</p>
+          <div class="value-line"><span id="dutyReadout">22</span>% encendido por ciclo</div>
+          <p class="hint">Menor duty cycle reduce tiempo encendido, calor y fatiga visual; subelo solo si toleras bien la luz.</p>
         </article>
 
         <article class="control-card duration-card">
@@ -195,8 +218,9 @@
         <article class="control-card safety-card">
           <p class="eyebrow">Seguridad visual</p>
           <p class="hint">
-            Fuentes de epilepsia fotosensible y WCAG recomiendan evitar flashes fuertes por encima de 3 por segundo.
-            Esta app limita el control a 2.9 Hz, detiene al ocultarse y no sustituye consejo medico.
+            Lumenate no publica sus frecuencias exactas; su ciencia publica habla de entrainment por flicker. La literatura de
+            flicker estudia 3, 8, 10 y 18 Hz, mientras las fuentes de epilepsia fotosensible advierten que 3-30 Hz puede ser
+            riesgoso. Esta app no sustituye consejo medico.
           </p>
         </article>
 

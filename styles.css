@@ -429,13 +429,19 @@ input[type="range"] {
   font-weight: 800;
 }
 
-.track-grid {
+.track-grid,
+.pattern-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.track-button {
+.pattern-grid {
+  grid-template-columns: 1fr;
+}
+
+.track-button,
+.pattern-button {
   display: grid;
   gap: 4px;
   min-height: 78px;
@@ -451,24 +457,28 @@ input[type="range"] {
   transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
 }
 
-.track-button span {
+.track-button span,
+.pattern-button span {
   font-weight: 900;
 }
 
-.track-button small {
+.track-button small,
+.pattern-button small {
   color: var(--muted);
   font-size: 0.76rem;
   line-height: 1.25;
 }
 
-.track-button.active {
+.track-button.active,
+.pattern-button.active {
   border-color: rgb(184 167 255 / 0.72);
   background:
     radial-gradient(circle at 18% 16%, rgb(142 232 255 / 0.16), transparent 5.5rem),
     linear-gradient(160deg, rgb(184 167 255 / 0.17), rgb(142 232 255 / 0.06));
 }
 
-.track-button:active {
+.track-button:active,
+.pattern-button:active {
   transform: translateY(1px) scale(0.99);
 }
 
