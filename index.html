@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <canvas class="neural-field" id="neuralCanvas" aria-hidden="true"></canvas>
     <main class="app-shell">
       <section class="status-panel" aria-live="polite">
         <div>
@@ -34,6 +35,10 @@
             <input id="consentInput" type="checkbox" />
             <span>Entiendo el riesgo y quiero activar los controles.</span>
           </label>
+          <label class="consent-row">
+            <input id="ageInput" type="checkbox" />
+            <span>Confirmo que soy mayor de 18 años.</span>
+          </label>
         </div>
       </section>
 
@@ -56,7 +61,7 @@
 
           <div class="readout">
             <div>
-              <span id="frequencyReadout">8.0</span>
+              <span id="frequencyReadout">2.0</span>
               <small>Hz</small>
             </div>
             <div>
@@ -95,15 +100,17 @@
           <p class="eyebrow">Frecuencia</p>
           <label class="range-row" for="frequencyInput">
             <span>Hz</span>
-            <input id="frequencyInput" type="range" min="0.5" max="20" step="0.1" value="8" />
+            <input id="frequencyInput" type="range" min="0.5" max="2.9" step="0.1" value="2" />
           </label>
           <div class="preset-row" aria-label="Presets de frecuencia">
-            <button class="preset-button" type="button" data-frequency="2">2 Hz</button>
-            <button class="preset-button" type="button" data-frequency="4">4 Hz</button>
-            <button class="preset-button active" type="button" data-frequency="8">8 Hz</button>
-            <button class="preset-button" type="button" data-frequency="10">10 Hz</button>
+            <button class="preset-button" type="button" data-frequency="0.8">0.8 Hz</button>
+            <button class="preset-button" type="button" data-frequency="1.2">1.2 Hz</button>
+            <button class="preset-button active" type="button" data-frequency="2">2 Hz</button>
+            <button class="preset-button" type="button" data-frequency="2.8">2.8 Hz</button>
           </div>
-          <p class="risk-note" id="riskNote">Riesgo alto: 3-20 Hz puede afectar a personas fotosensibles.</p>
+          <p class="risk-note" id="riskNote">
+            Perfil conservador: el rango 3-30 Hz se evita porque puede afectar a personas fotosensibles.
+          </p>
         </article>
 
         <article class="control-card">
@@ -183,6 +190,14 @@
           </label>
           <div class="value-line">±<span id="modulationReadout">20</span>% sobre la frecuencia base</div>
           <p class="hint">La frecuencia luminosa respira con frases lentas de la musica, sin saltos bruscos.</p>
+        </article>
+
+        <article class="control-card safety-card">
+          <p class="eyebrow">Seguridad visual</p>
+          <p class="hint">
+            Fuentes de epilepsia fotosensible y WCAG recomiendan evitar flashes fuertes por encima de 3 por segundo.
+            Esta app limita el control a 2.9 Hz, detiene al ocultarse y no sustituye consejo medico.
+          </p>
         </article>
 
         <article class="control-card">

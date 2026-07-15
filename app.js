@@ -1,6 +1,7 @@
 const els = {
   supportBadge: document.querySelector("#supportBadge"),
   consentInput: document.querySelector("#consentInput"),
+  ageInput: document.querySelector("#ageInput"),
   startButton: document.querySelector("#startButton"),
   stopButton: document.querySelector("#stopButton"),
   panicButton: document.querySelector("#panicButton"),
@@ -22,6 +23,7 @@ const els = {
   timerReadout: document.querySelector("#timerReadout"),
   pulseMeter: document.querySelector("#pulseMeter"),
   flashScreen: document.querySelector("#flashScreen"),
+  neuralCanvas: document.querySelector("#neuralCanvas"),
   sessionIntent: document.querySelector("#sessionIntent"),
   trackDescription: document.querySelector("#trackDescription"),
   stateList: document.querySelector("#stateList"),
@@ -128,7 +130,7 @@ function getEffectiveFrequency() {
   const elapsed = getElapsedSeconds();
   const drift = getTrackDrift(elapsed);
   const modulated = frequency * (1 + drift * modulation);
-  return Math.min(20, Math.max(0.5, modulated));
+  return Math.min(2.9, Math.max(0.5, modulated));
 }
 
 function setStateList(items) {
@@ -173,6 +175,7 @@ function updateReadouts() {
     els.supportBadge.textContent = `${modeLabel} · listo`;
     setStateList([
       els.consentInput.checked ? "Riesgo confirmado por el usuario." : "Esperando confirmacion de seguridad.",
+      els.ageInput.checked ? "Mayor de edad confirmado." : "Esperando confirmacion de mayoria de edad.",
       state.mode === "torch" ? `Modo linterna: ${supportLabel}.` : "Modo pantalla activo.",
       `Audio: ${musicLabel}.`,
       "Temporizador inactivo.",
@@ -181,7 +184,7 @@ function updateReadouts() {
 }
 
 function syncStartAvailability() {
-  const hasConsent = els.consentInput.checked;
+  const hasConsent = els.consentInput.checked && els.ageInput.checked;
   els.startButton.disabled = !hasConsent || state.running;
   els.stopButton.disabled = !state.running;
   els.panicButton.disabled = !state.running;
@@ -321,7 +324,7 @@ function updateTimer() {
 }
 
 async function startSession() {
-  if (state.running || !els.consentInput.checked) return;
+  if (state.running || !els.consentInput.checked || !els.ageInput.checked) return;
 
   const { frequency, duration } = getSettings();
   const highRisk = frequency >= 3;
@@ -418,6 +421,11 @@ els.consentInput.addEventListener("change", () => {
   updateReadouts();
 });
 
+els.ageInput.addEventListener("change", () => {
+  syncStartAvailability();
+  updateReadouts();
+});
+
 els.startButton.addEventListener("click", startSession);
 els.stopButton.addEventListener("click", () => stopSession());
 els.panicButton.addEventListener("click", () => stopSession("Parada inmediata activada."));
@@ -455,6 +463,121 @@ els.durationButtons.forEach((button) => {
   });
 });
 
+function initNeuralField() {
+  const canvas = els.neuralCanvas;
+  const context = canvas?.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (!canvas || !context || reduceMotion.matches) return;
+
+  const pointer = { x: 0, y: 0, active: false };
+  let width = 0;
+  let height = 0;
+  let particles = [];
+  let animationId = null;
+
+  function resize() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * ratio);
+    canvas.height = Math.floor(height * ratio);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    const count = Math.min(92, Math.max(34, Math.floor((width * height) / 19000)));
+    particles = Array.from({ length: count }, (_, index) => ({
+      x: (index * 89) % width,
+      y: (index * 144) % height,
+      vx: (Math.sin(index * 17) * 0.32) + 0.06,
+      vy: (Math.cos(index * 23) * 0.28) - 0.02,
+      r: 1.4 + ((index * 7) % 15) / 10,
+      phase: index * 0.37,
+    }));
+  }
+
+  function draw(time = 0) {
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = "rgba(5, 7, 13, 0.34)";
+    context.fillRect(0, 0, width, height);
+
+    particles.forEach((particle) => {
+      const drift = Math.sin(time * 0.00035 + particle.phase) * 0.12;
+      particle.x += particle.vx + drift;
+      particle.y += particle.vy + Math.cos(time * 0.0003 + particle.phase) * 0.08;
+
+      if (particle.x < -20) particle.x = width + 20;
+      if (particle.x > width + 20) particle.x = -20;
+      if (particle.y < -20) particle.y = height + 20;
+      if (particle.y > height + 20) particle.y = -20;
+    });
+
+    for (let i = 0; i < particles.length; i += 1) {
+      for (let j = i + 1; j < particles.length; j += 1) {
+        const a = particles[i];
+        const b = particles[j];
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < 118) {
+          const alpha = (1 - distance / 118) * 0.28;
+          context.strokeStyle = `rgba(142, 232, 255, ${alpha})`;
+          context.lineWidth = 1;
+          context.beginPath();
+          context.moveTo(a.x, a.y);
+          context.lineTo(b.x, b.y);
+          context.stroke();
+        }
+      }
+    }
+
+    if (pointer.active) {
+      particles.forEach((particle) => {
+        const distance = Math.hypot(particle.x - pointer.x, particle.y - pointer.y);
+        if (distance < 180) {
+          context.strokeStyle = `rgba(184, 167, 255, ${(1 - distance / 180) * 0.34})`;
+          context.beginPath();
+          context.moveTo(particle.x, particle.y);
+          context.lineTo(pointer.x, pointer.y);
+          context.stroke();
+        }
+      });
+    }
+
+    particles.forEach((particle) => {
+      context.fillStyle = "rgba(239, 247, 255, 0.68)";
+      context.beginPath();
+      context.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
+      context.fill();
+    });
+
+    animationId = window.requestAnimationFrame(draw);
+  }
+
+  window.addEventListener("resize", resize);
+  window.addEventListener("pointermove", (event) => {
+    pointer.x = event.clientX;
+    pointer.y = event.clientY;
+    pointer.active = true;
+  });
+  window.addEventListener("pointerleave", () => {
+    pointer.active = false;
+  });
+  reduceMotion.addEventListener?.("change", () => {
+    if (reduceMotion.matches && animationId) {
+      window.cancelAnimationFrame(animationId);
+      animationId = null;
+      context.clearRect(0, 0, width, height);
+    } else if (!reduceMotion.matches && !animationId) {
+      resize();
+      draw();
+    }
+  });
+
+  resize();
+  draw();
+}
+
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && state.running) {
     stopSession("Sesion detenida porque la app paso a segundo plano.");
@@ -469,3 +592,4 @@ window.addEventListener("beforeunload", () => {
 
 updateReadouts();
 syncStartAvailability();
+initNeuralField();
