@@ -10,41 +10,19 @@
   <body>
     <canvas class="neural-field" id="neuralCanvas" aria-hidden="true"></canvas>
     <main class="app-shell">
-      <section class="status-panel" aria-live="polite">
+      <section class="hero-panel" aria-live="polite">
         <div>
           <p class="eyebrow">Lumen Pulse</p>
-          <h1>Sesiones de luz y sonido para estados meditativos</h1>
+          <h1>Respira, baja la luz, entra suave.</h1>
           <p class="hero-copy">
-            Combina flicker visual, patrones rítmicos y pistas ambient para una experiencia exploratoria con riesgo informado.
+            Una sesion compacta de flicker, musica ambient y patrones ritmicos para explorar estados meditativos con consentimiento informado.
           </p>
         </div>
         <div class="runtime-badge" id="supportBadge">Sin iniciar</div>
       </section>
 
-      <section class="warning-panel" id="warningPanel">
-        <div class="warning-mark" aria-hidden="true">!</div>
-        <div>
-          <h2>Lee esto antes de usarlo</h2>
-          <p>
-            Esta app usa frecuencias de flicker similares a las estudiadas para estados alterados con ojos cerrados. Eso tambien
-            entra en rangos asociados con fotosensibilidad: puede provocar malestar, migrañas, nauseas o convulsiones en personas
-            fotosensibles. No uses esta app si tienes epilepsia, historial de convulsiones, sensibilidad a luces,
-            migraña fuerte, una condicion neurologica, o si estas con sustancias, manejando o cerca de otras personas
-            que no dieron consentimiento.
-          </p>
-          <label class="consent-row">
-            <input id="consentInput" type="checkbox" />
-            <span>Entiendo el riesgo y quiero activar los controles.</span>
-          </label>
-          <label class="consent-row">
-            <input id="ageInput" type="checkbox" />
-            <span>Confirmo que soy mayor de 18 años.</span>
-          </label>
-        </div>
-      </section>
-
-      <section class="control-grid">
-        <article class="control-card primary-controls">
+      <section class="studio-layout">
+        <article class="glass-panel session-stage">
           <div class="card-head">
             <div>
               <p class="eyebrow">Sesion</p>
@@ -62,17 +40,37 @@
 
           <div class="readout">
             <div>
-              <span id="frequencyReadout">2.0</span>
+              <span id="frequencyReadout">10.0</span>
               <small>Hz</small>
             </div>
             <div>
-              <span id="timerReadout">00:00</span>
+              <span id="timerReadout">01:00</span>
               <small>restante</small>
             </div>
           </div>
 
           <div class="session-intent" id="sessionIntent">
-            Pulso base con variacion musical suave.
+            Calma: 10.0 Hz base, patron ritmico, variacion de ±20%.
+          </div>
+
+          <div class="consent-panel inline-consent" id="warningPanel">
+            <div class="warning-mark" aria-hidden="true">!</div>
+            <div>
+              <p class="eyebrow">Antes de empezar</p>
+              <p>
+                Flicker 3-18 Hz puede provocar malestar, migrañas, nauseas o convulsiones en personas fotosensibles.
+              </p>
+              <div class="consent-grid">
+                <label class="consent-row">
+                  <input id="consentInput" type="checkbox" />
+                  <span>Entiendo el riesgo.</span>
+                </label>
+                <label class="consent-row">
+                  <input id="ageInput" type="checkbox" />
+                  <span>Soy mayor de 18.</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div class="action-row">
@@ -81,157 +79,153 @@
           </div>
         </article>
 
-        <article class="control-card">
-          <p class="eyebrow">Modo</p>
-          <div class="segmented" role="radiogroup" aria-label="Modo de salida">
-            <button class="segment active" id="torchModeButton" type="button" role="radio" aria-checked="true">
-              Linterna
-            </button>
-            <button class="segment" id="screenModeButton" type="button" role="radio" aria-checked="false">
-              Pantalla
-            </button>
-          </div>
-          <p class="hint">
-            La linterna solo funciona en navegadores moviles compatibles, normalmente Chrome en Android y con permiso
-            de camara. iOS suele bloquear el control de torch.
-          </p>
-        </article>
+        <section class="quick-stack" aria-label="Controles principales">
+          <article class="glass-panel compact-controls">
+            <div class="control-block">
+              <p class="eyebrow">Intencion</p>
+              <div class="track-grid" role="radiogroup" aria-label="Pista de audio por intencion">
+                <button class="track-button active" type="button" role="radio" aria-checked="true" data-track="calm">
+                  <span>Calma</span>
+                  <small>Wonder · 10:00</small>
+                </button>
+                <button class="track-button" type="button" role="radio" aria-checked="false" data-track="focus">
+                  <span>Enfoque</span>
+                  <small>Bright Ambient · 8:57</small>
+                </button>
+                <button class="track-button" type="button" role="radio" aria-checked="false" data-track="breath">
+                  <span>Respirar</span>
+                  <small>Nature Ambience · 9:41</small>
+                </button>
+                <button class="track-button" type="button" role="radio" aria-checked="false" data-track="trance">
+                  <span>Trance</span>
+                  <small>Frozen · 9:32</small>
+                </button>
+              </div>
+              <p class="hint" id="trackDescription">
+                Pista amplia para bajar revoluciones, con cambios lentos y luz respirando suave. MP3: Wonder, 10:00.
+              </p>
+            </div>
 
-        <article class="control-card">
-          <p class="eyebrow">Frecuencia</p>
-          <label class="range-row" for="frequencyInput">
-            <span>Hz</span>
-            <input id="frequencyInput" type="range" min="3" max="18" step="0.1" value="10" />
-          </label>
-          <div class="preset-row" aria-label="Presets de frecuencia">
-            <button class="preset-button" type="button" data-frequency="6">6 Hz</button>
-            <button class="preset-button" type="button" data-frequency="8">8 Hz</button>
-            <button class="preset-button active" type="button" data-frequency="10">10 Hz</button>
-            <button class="preset-button" type="button" data-frequency="14">14 Hz</button>
-            <button class="preset-button" type="button" data-frequency="18">18 Hz</button>
-          </div>
-          <p class="risk-note" id="riskNote">
-            Rango exploratorio: 8, 10 y 18 Hz se han usado en estudios de flicker. 10 Hz ritmico suele reportar mas intensidad visual.
-          </p>
-        </article>
+            <div class="control-block split-controls">
+              <div>
+                <p class="eyebrow">Duracion</p>
+                <div class="duration-row" aria-label="Duraciones de sesion">
+                  <button class="duration-button active" type="button" data-duration="60">1 min</button>
+                  <button class="duration-button" type="button" data-duration="180">3 min</button>
+                  <button class="duration-button" type="button" data-duration="300">5 min</button>
+                  <button class="duration-button" type="button" data-duration="600">10 min</button>
+                </div>
+                <input id="durationInput" class="visually-hidden" type="range" min="60" max="600" step="60" value="60" />
+                <div class="value-line"><span id="durationReadout">60</span>s maximo</div>
+              </div>
 
-        <article class="control-card">
-          <p class="eyebrow">Patron luminoso</p>
-          <div class="pattern-grid" role="radiogroup" aria-label="Patron de flicker">
-            <button class="pattern-button active" type="button" role="radio" aria-checked="true" data-pattern="rhythmic">
-              <span>Ritmico</span>
-              <small>Pulso estable para entrainment</small>
-            </button>
-            <button class="pattern-button" type="button" role="radio" aria-checked="false" data-pattern="wave">
-              <span>Oleaje</span>
-              <small>Microvariacion lenta</small>
-            </button>
-            <button class="pattern-button" type="button" role="radio" aria-checked="false" data-pattern="arrhythmic">
-              <span>Arritmico</span>
-              <small>Menos intenso, mas organico</small>
-            </button>
-          </div>
-          <p class="hint" id="patternDescription">
-            El patron ritmico mantiene la frecuencia con poca desviacion; los estudios lo asocian con efectos visuales mas fuertes.
-          </p>
-        </article>
+              <div>
+                <p class="eyebrow">Salida</p>
+                <div class="segmented" role="radiogroup" aria-label="Modo de salida">
+                  <button class="segment active" id="torchModeButton" type="button" role="radio" aria-checked="true">
+                    Linterna
+                  </button>
+                  <button class="segment" id="screenModeButton" type="button" role="radio" aria-checked="false">
+                    Pantalla
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        <article class="control-card">
-          <p class="eyebrow">Intensidad temporal</p>
-          <label class="range-row" for="dutyInput">
-            <span>Duty cycle</span>
-            <input id="dutyInput" type="range" min="8" max="50" step="2" value="22" />
-          </label>
-          <div class="value-line"><span id="dutyReadout">22</span>% encendido por ciclo</div>
-          <p class="hint">Menor duty cycle reduce tiempo encendido, calor y fatiga visual; subelo solo si toleras bien la luz.</p>
-        </article>
+            <div class="control-block">
+              <p class="eyebrow">Frecuencia</p>
+              <label class="range-row" for="frequencyInput">
+                <span>3-18 Hz</span>
+                <input id="frequencyInput" type="range" min="3" max="18" step="0.1" value="10" />
+              </label>
+              <div class="preset-row" aria-label="Presets de frecuencia">
+                <button class="preset-button" type="button" data-frequency="6">6</button>
+                <button class="preset-button" type="button" data-frequency="8">8</button>
+                <button class="preset-button active" type="button" data-frequency="10">10</button>
+                <button class="preset-button" type="button" data-frequency="14">14</button>
+                <button class="preset-button" type="button" data-frequency="18">18</button>
+              </div>
+              <p class="risk-note" id="riskNote">
+                10 Hz ritmico suele reportar mas intensidad visual en estudios de flicker.
+              </p>
+            </div>
 
-        <article class="control-card duration-card">
-          <p class="eyebrow">Duracion</p>
-          <div class="duration-row" aria-label="Duraciones de sesion">
-            <button class="duration-button active" type="button" data-duration="60">1 min</button>
-            <button class="duration-button" type="button" data-duration="180">3 min</button>
-            <button class="duration-button" type="button" data-duration="300">5 min</button>
-            <button class="duration-button" type="button" data-duration="600">10 min</button>
-          </div>
-          <label class="range-row" for="durationInput">
-            <span>Segundos</span>
-            <input id="durationInput" type="range" min="60" max="600" step="60" value="60" />
-          </label>
-          <div class="value-line"><span id="durationReadout">60</span>s maximo</div>
-          <p class="hint">La app se detiene automaticamente al terminar la sesion.</p>
-        </article>
+            <div class="control-block">
+              <p class="eyebrow">Patron luminoso</p>
+              <div class="pattern-grid" role="radiogroup" aria-label="Patron de flicker">
+                <button class="pattern-button active" type="button" role="radio" aria-checked="true" data-pattern="rhythmic">
+                  <span>Ritmico</span>
+                  <small>Estable</small>
+                </button>
+                <button class="pattern-button" type="button" role="radio" aria-checked="false" data-pattern="wave">
+                  <span>Oleaje</span>
+                  <small>Lento</small>
+                </button>
+                <button class="pattern-button" type="button" role="radio" aria-checked="false" data-pattern="arrhythmic">
+                  <span>Arritmico</span>
+                  <small>Organico</small>
+                </button>
+              </div>
+              <p class="hint" id="patternDescription">
+                El patron ritmico mantiene la frecuencia con poca desviacion; los estudios lo asocian con efectos visuales mas fuertes.
+              </p>
+            </div>
+          </article>
 
-        <article class="control-card">
-          <p class="eyebrow">Tipo de meditacion</p>
-          <div class="track-grid" role="radiogroup" aria-label="Pista de audio por intencion">
-            <button class="track-button active" type="button" role="radio" aria-checked="true" data-track="calm">
-              <span>Calma</span>
-              <small>Wonder · 10:00</small>
-            </button>
-            <button class="track-button" type="button" role="radio" aria-checked="false" data-track="focus">
-              <span>Enfoque</span>
-              <small>Bright Ambient · 8:57</small>
-            </button>
-            <button class="track-button" type="button" role="radio" aria-checked="false" data-track="breath">
-              <span>Respirar</span>
-              <small>Nature Ambience · 9:41</small>
-            </button>
-            <button class="track-button" type="button" role="radio" aria-checked="false" data-track="trance">
-              <span>Trance suave</span>
-              <small>Frozen in Time · 9:32</small>
-            </button>
-          </div>
-          <p class="hint" id="trackDescription">
-            Pista amplia para bajar revoluciones, con cambios lentos y luz respirando suave. MP3: Wonder, 10:00.
-          </p>
-        </article>
+          <details class="glass-panel advanced-panel">
+            <summary>Afinar musica e intensidad</summary>
+            <div class="advanced-grid">
+              <div class="control-block">
+                <p class="eyebrow">Musica</p>
+                <div class="segmented" role="radiogroup" aria-label="Musica de sesion">
+                  <button class="segment active" id="musicOnButton" type="button" role="radio" aria-checked="true">
+                    Ambient
+                  </button>
+                  <button class="segment" id="musicOffButton" type="button" role="radio" aria-checked="false">
+                    Silencio
+                  </button>
+                </div>
+                <label class="range-row stacked-range" for="volumeInput">
+                  <span>Volumen</span>
+                  <input id="volumeInput" type="range" min="0" max="70" step="5" value="35" />
+                </label>
+                <div class="value-line"><span id="volumeReadout">35</span>% audio</div>
+              </div>
 
-        <article class="control-card">
-          <p class="eyebrow">Musica</p>
-          <div class="segmented" role="radiogroup" aria-label="Musica de sesion">
-            <button class="segment active" id="musicOnButton" type="button" role="radio" aria-checked="true">
-              Ambient
-            </button>
-            <button class="segment" id="musicOffButton" type="button" role="radio" aria-checked="false">
-              Silencio
-            </button>
-          </div>
-          <label class="range-row stacked-range" for="volumeInput">
-            <span>Volumen</span>
-            <input id="volumeInput" type="range" min="0" max="70" step="5" value="35" />
-          </label>
-          <div class="value-line"><span id="volumeReadout">35</span>% audio</div>
-          <p class="hint">MP3 libres de DRM descargados para la app. Requiere tocar Iniciar para desbloquear audio.</p>
-        </article>
+              <div class="control-block">
+                <p class="eyebrow">Luz</p>
+                <label class="range-row" for="dutyInput">
+                  <span>Duty cycle</span>
+                  <input id="dutyInput" type="range" min="8" max="50" step="2" value="22" />
+                </label>
+                <div class="value-line"><span id="dutyReadout">22</span>% encendido por ciclo</div>
+              </div>
 
-        <article class="control-card">
-          <p class="eyebrow">Variacion musical</p>
-          <label class="range-row" for="modulationInput">
-            <span>Profundidad</span>
-            <input id="modulationInput" type="range" min="0" max="45" step="5" value="20" />
-          </label>
-          <div class="value-line">±<span id="modulationReadout">20</span>% sobre la frecuencia base</div>
-          <p class="hint">La frecuencia luminosa respira con frases lentas de la musica, sin saltos bruscos.</p>
-        </article>
+              <div class="control-block">
+                <p class="eyebrow">Variacion musical</p>
+                <label class="range-row" for="modulationInput">
+                  <span>Profundidad</span>
+                  <input id="modulationInput" type="range" min="0" max="45" step="5" value="20" />
+                </label>
+                <div class="value-line">±<span id="modulationReadout">20</span>% sobre la frecuencia base</div>
+              </div>
+            </div>
+          </details>
 
-        <article class="control-card safety-card">
-          <p class="eyebrow">Seguridad visual</p>
-          <p class="hint">
-            Lumenate no publica sus frecuencias exactas; su ciencia publica habla de entrainment por flicker. La literatura de
-            flicker estudia 3, 8, 10 y 18 Hz, mientras las fuentes de epilepsia fotosensible advierten que 3-30 Hz puede ser
-            riesgoso. Esta app no sustituye consejo medico.
-          </p>
-        </article>
-
-        <article class="control-card">
-          <p class="eyebrow">Estado</p>
-          <ul class="state-list" id="stateList">
-            <li>Esperando confirmacion de seguridad.</li>
-            <li>Linterna sin solicitar.</li>
-            <li>Temporizador inactivo.</li>
-          </ul>
-        </article>
+          <details class="glass-panel advanced-panel safety-card">
+            <summary>Riesgo y estado</summary>
+            <p class="hint">
+              No uses esta app si tienes epilepsia, historial de convulsiones, sensibilidad a luces, migraña fuerte,
+              una condicion neurologica, sustancias encima, o si estas cerca de personas que no dieron consentimiento.
+              Lumenate no publica sus frecuencias exactas; esta app no sustituye consejo medico.
+            </p>
+            <ul class="state-list" id="stateList">
+              <li>Esperando confirmacion de seguridad.</li>
+              <li>Linterna sin solicitar.</li>
+              <li>Temporizador inactivo.</li>
+            </ul>
+          </details>
+        </section>
       </section>
     </main>
 
